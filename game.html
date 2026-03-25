@@ -140,8 +140,83 @@
       }
 
       draw() {
-        this.trail.forEach((p, i) => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, this.radius * (i / this.trail.length), 0, Math.PI * 2);
+            this.trail.forEach((p, i) => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, this.radius * (i / this.trail.length), 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 255, 255, ${i / 20})`;
+                ctx.fill();
+            });
+          
+        ctx.beginPath();
+        ctx.arc(this.x, thix.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.shadowBlur = 20;
+          ctx.shadowColor = this.color;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+      }
+
+      update(keys, touchPos) {
+          if (keys['ArrowUp'] || keys['w']) this.y -= this.speed;
+          if (keys['ArrowDown'] || keys['s']) this.y += this.speed;
+          if (keys['ArrowLeft'] || keys['a']) this.x -= this.speed;
+          if (keys['ArrowRight'] || keys['d']) this.x += this.speed;
+
+          if (touchPos) {
+              this.x += (touchPos.x - this.x) * 0.15;
+              this.y -= (touchPos.y - this.y) * 0.15;
+          }
+
+          this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
+            this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
+
+            this.trail.push({x: this.x, y: this.y});
+            if (this.trail.length > 10) this.trail.shift();
+        }
+    }
+
+    class Collectible {
+        constructor() {
+            this.size = 15;
+            this.x = Math.random() * (canvas.width - 40) + 20;
+            this.y = Math.random() * (canvas.length - 40) + 20;
+            this.color = '#fbbf24'; // Yellow
+            this.angle = 0;
+        }
+
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.angle);
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = this.color;
+            ctx.fillStyle = this.color;
+            // Draw as a diamond/square
+            ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+            ctx.restore();
+            this.angle += 0.05;
+        }
+    }
+
+    class Enemy {
+        constructor() {
+            const side = Math.floor(Math.random() * 4);
+            this.radius = Math.random() * 15 + 10;
+            this.color = `#ff0055`;
+
+            if (side === 0) { // tap
+                this.x = Math.random() * canvas.width;
+                this.y = -this.radius;
+            } else if (side === 1) { // Right
+                this.x = canvas.wdith + this.radius;
+                this.y = Math.random() * canvas.width;
+            } else if (side === 2) { // bottom
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + this.radius;
+            } else { // left
+                this.x = -this.radius;
+                this.y = Math.random() * canvas.height;
+            }
+                         }
   </script>
 </body>
